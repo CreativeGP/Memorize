@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Memorize</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+        <link href="style.css" rel="stylesheet"/>
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    </head>
+    <body>
+        <section class="section">
+            <div class="container">
+                <h1 class="title"><span class="mode-name"></span></h1>
+                <a id="prev-btn" class="button is-light">&lt;-</a>
+                <a id="next-btn" class="button is-light is-pulled-right">-&gt;</a>
+
+                <!-- https://weblio.hs.llnwd.net/e8/audio/inunction.mp3 -->
+                <div id="view">
+                    <strong><p id="main-text" class="has-text-centered" style="font-size: 50px"></p></strong>
+                    <p id="sub-text" class="has-text-centered">　</p>
+                </div>
+                <div id="another-view">
+                    <p id="answer" class="has-text-centered" style="font-size: 50px"></p>
+                    <p>&nbsp;</p>
+                </div>
+
+                <div class="columns">
+                    <div class="column is-11">
+                        <progress id="round-bar" class="progress" value="11" max="100"></progress>
+                    </div>
+                    <div id="round-text" class="column"></div>
+                </div>
+                
+                <div class="content">
+                    <div id="contents"></div>
+                    <div id="another-contents"></div>
+                </div>
+            </div>
+        </section>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/umbrella/3.1.0/umbrella.min.js"></script>
+        <script src="lib.js"></script>
+        <script>
+         let db = [];
+         for (let dbname of _settings.using_databases) {
+             db = db.concat(_database[dbname]);
+         }
+         
+         const mode_name = new URL(window.location.href).searchParams.get("mode");
+         const mode = _mode[mode_name];
+
+         u('.mode-name').text(mode_name);
+         u('#contents').html(mode.mv);
+         u('#another-contents').html(mode.av);
+
+         eval(mode.custom_js);
+
+         let _updateMainView = updateMainView;
+         updateMainView = function () {
+             word = db[round-1].word;
+             subtext = db[round-1].sub_text;
+             answer = db[round-1].answer;
+             udd = db[round-1].udd;
+             
+             _updateMainView.apply(null, arguments);
+         }
+
+         switch (mode_name) {
+             case 'writing':
+                 break;
+         }
+
+         const geid = s => document.getElementById(s);
+
+         let word = '', subtext = '', answer = '', udd = '';
+         /* let to_memorize = ['article', 'biography', 'comment', 'fiction', 'legend'];
+          * let sub_text = ['', '', '', '', ''];
+          * let answer = ['記事', '伝記', '論評', 'フィクション', '伝説'];*/
+         let max_round = db.length;
+         let round = 1;
+
+         switchToMainView();
+         updateRoundIndc();
+         updateMainView();
+         
+         u('#prev-btn').handle('click', prevWord);
+         u('#next-btn').handle('click', nextWord);
+         document.addEventListener('keydown', e => {
+             console.log(e.key);
+             eval(mode.kbd_js);
+         });
+
+         function action() {
+             new Audio(`https://weblio.hs.llnwd.net/e8/audio/${to_memorize[round - 1]}.mp3`).play();
+         }
+
+         function toggleView() {
+             if (geid('view').style.display === 'block')
+                 switchToAnswerView();
+             else
+                 switchToMainView();
+         }
+         function switchToAnswerView() {
+             geid('another-view').style.display = 'block';
+             geid('view').style.display = 'none';
+             geid('another-contents').style.display = 'block';
+             geid('contents').style.display = 'none';
+         }
+         function switchToMainView() {
+             geid('another-view').style.display = 'none';
+             geid('view').style.display = 'block';
+             geid('another-contents').style.display = 'none';
+             geid('contents').style.display = 'block';
+         }
+         
+         function updateRoundIndc() {
+             u('#round-text').text(round + " / " + max_round);
+             u('#round-bar').attr('max', max_round-1);
+             u('#round-bar').attr('value', round-1);
+         }
+
+         
+         function prevWord() {
+             if (round <= 1) return;
+             
+             round--;
+             updateRoundIndc();
+             updateMainView();
+             switchToMainView();
+         }
+
+         function nextWord() {
+             if (round >= max_round) return;
+             
+             round++;
+             updateRoundIndc();
+             updateMainView();
+             switchToMainView();
+         }
+
+        </script>
+
+    </body>
+</html>

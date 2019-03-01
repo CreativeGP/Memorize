@@ -1,0 +1,194 @@
+<!Doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Memorize</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+        <link href="style.css" rel="stylesheet"/>
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    </head>
+    <body>
+        
+        
+        <section class="section">
+            <div class="container">
+                <a href="database.html" class="is-white"><p class="title is-3">&lt;&lt;</p></a>
+                <h1 class="title">
+                    <i class="far fa-edit"></i> Edit Database ( <span class="db-name"></span> )
+                </h1>
+                <h1 class="subtitle is-6">
+                    データベースを編集できます
+                </h1>
+
+                <br>
+                <h1 class="title is-5"># Append new record</h1>
+                <form action="javascript:void(0);">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Word</th>
+                                <th>Sub Text</th>
+                                <th>Answer</th>
+                                <th>User-Defined Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="in-word" contentEditable></td>
+                                <td id="in-subtext" contentEditable></td>
+                                <td id="in-answer" contentEditable></td>
+                                <td id="in-udd" contentEditable></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <a id="append" class="button is-link">Append</a>
+                </form>
+
+                <br>
+                <h1 class="title is-5"># Append new records via CSV</h1>
+                
+                <textarea id="in-csv" class="textarea" placeholder="csv data delimited with ',' (use '\,' to escape). Records should be separated with '\n'. "></textarea>
+
+                <a id="load" class="button is-link">Load</a>
+
+                <br>
+                <br>
+                <h1 class="title is-5"># Data Viewer</h1>
+
+                <a id="undo" class="button is-black">Undo</a>
+                
+                <table class="table" id="data-viewer">
+                    <thead>
+                        <tr>
+                            <th>id</th>
+                            <th>Word</th>
+                            <th>Sub text</th>
+                            <th>Answer</th>
+                            <th>User-Defined Data</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+        </section>
+
+        <style>
+         .db-name {
+             color: #025fff;
+             text-decoration: underline;
+         }
+        </style>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/umbrella/3.1.0/umbrella.min.js"></script>
+        <script src="lib.js"></script>
+        <script>
+         const name = new URL(window.location.href).searchParams.get("name");
+         u('.db-name').text(name);
+
+         updateDataViewer();
+
+         function updateDataViewer() {
+             u('#data-viewer tbody').html('');
+             for (const id in _database[name]) {
+                 const rec = _database[name][id];
+                 u('#data-viewer tbody').append(`
+<tr data-id="${id}">
+    <td class="rec-id">${id}</td>
+    <td class="rec-word" contenteditable>${rec.word}</td>
+    <td class="rec-subtext" contenteditable>${rec.sub_text}</td>
+    <td class="rec-answer" contenteditable>${rec.answer}</td>
+    <td class="rec-udd" contenteditable>${rec.udd}</td>
+    <td>
+        <a class="delete-rec button is-white is-small">
+            <i class="is-pulled-left far fa-trash-alt"></i>
+        </a>
+    </td>
+</tr>
+                 `);
+             }
+
+             u('#data-viewer td').on('input', e => {
+                 const td = u(e.currentTarget);
+                 const tr = td.parent();
+                 const id = parseInt(tr.attr('data-id'));
+
+                 const word = tr.find('.rec-word').text();
+                 const answer = tr.find('.rec-answer').text();
+                 const subtext = tr.find('.rec-subtext').text();
+                 const udd = tr.find('.rec-udd').text();
+
+                 changeRecord(name, id,
+                              { word: word
+                              , sub_text: subtext
+                              , answer: answer
+                              , udd: udd
+                              });
+             });
+             u('.delete-rec').handle('click', e => {
+                 backupDB(name);
+                 removeRecord(name,
+                              parseInt(u(e.currentTarget).parent().parent().attr('data-id')));
+                 updateDataViewer();
+             });
+         }
+
+         function appendData() {
+             appendRecord(name,
+                          { word: u('#in-word').text()
+                          , sub_text: u('#in-subtext').text()
+                          , answer: u('#in-answer').text()
+                          , udd: u('#in-udd').text()
+                          });
+             updateDataViewer();
+         }
+
+         function LoadCSV() {
+             let csv = u('#in-csv').nodes[0].value;
+             csv = csv.split("\n").map(x => x.match(/(\\.|[^,])+/g));
+
+             for (let rec of csv) {
+                 if (rec.length != 4) {
+                     return -1;
+                     console.log('bad data.');
+                 }
+             }
+             
+             for (let rec of csv) {
+                 appendRecord(name,
+                              { word: rec[0]
+                              , sub_text: rec[1]
+                              , answer: rec[2]
+                              , udd: rec[3]
+                              });
+             }
+         }
+        </script>
+
+        <script>
+         u('#in-word, #in-subtext, #in-answer, #in-udd').on('keydown', e => {
+             if (e.ctrlKey && e.key == 'Enter') {
+                 backupDB(name);
+                 appendData();
+             }
+         });
+         u('#append').handle('click', e => {
+             backupDB(name);
+             appendData();
+         });
+         u('#undo').handle('click', e => {
+             recoverDB(name);
+             updateDataViewer();
+         });
+         u('#load').handle('click', e => {
+             backupDB(name);
+             LoadCSV();
+             updateDataViewer();
+         });
+        </script>
+    </body>
+</html>

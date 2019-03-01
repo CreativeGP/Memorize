@@ -1,0 +1,140 @@
+<!Doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Memorize</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+        <link href="style.css" rel="stylesheet"/>
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    </head>
+    <body>
+        <section class="section">
+            <div class="container">
+                <a href="modes.html" class="is-white"><p class="title is-3">&lt;&lt;</p></a>
+                <h1 class="title">
+                    <i class="far fa-edit"></i> Edit Mode ( <span class="mode-name"></span> )
+                </h1>
+                <h1 class="subtitle is-6">
+                    モードの設定が出来ます
+                </h1>
+
+                <br>
+                <h1 class="title is-5"># Introduction of this mode</h1>
+                <textarea class="textarea" id="intro"></textarea>
+                
+                <br>
+                <h1 class="title is-5"># Change name</h1>
+                <input class="input" id="mode-name" type="text" value=""/>
+                <button id="mode-name-change" class="button is-black">Change</button>
+
+                <br>
+                <br>
+                <h1 class="title is-5"># Manual</h1>
+
+                <p>
+                    JavaScriptでは変数word, answer, subtext, uddが使えます。
+                </p>
+
+                <p>
+                    updateMainView関数は次の単語に進んだときの画面更新処理を書きます。
+                    この時、umbrella.jsが使えます。
+                </p>
+
+                <p>
+                    HTMLのID名は、#main-text, #sub-text, #answer, #contents, #another-contentsです。
+                </p>
+
+                <br>
+                <h1 class="title is-5"># Main view</h1>
+                HTML
+                <textarea id="mv"></textarea>
+
+
+                <br>
+                <h1 class="title is-5"># Answer view</h1>
+
+                HTML
+                <textarea id="av"></textarea>
+
+                <br>
+                <h1 class="title is-5"># Keybindings</h1>
+
+                JavaScript
+                <textarea id="kbd_js">
+                </textarea>
+
+                <br>
+                <h1 class="title is-5"># Custom JavaScript</h1>
+
+                JavaScript
+                <textarea id="custom_js"></textarea>
+            </div>
+        </section>
+
+        <style>
+         .mode-name {
+             color: #025fff;
+             text-decoration: underline;
+         }
+
+         .CodeMirror {
+             border-top: 1px solid black;
+             border-bottom: 1px solid black;
+             background-color: #f7f7f7!important;
+         }
+        </style>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/umbrella/3.1.0/umbrella.min.js"></script>
+        <script src="lib.js"></script>
+        <script>
+         const name = new URL(window.location.href).searchParams.get("name");
+         u('.mode-name').text(name);
+        </script>
+
+        <script>
+
+        </script>
+
+        
+        <link rel=stylesheet href="http://codemirror.net/lib/codemirror.css">
+        <script src="http://codemirror.net/lib/codemirror.js"></script>
+        <script src="http://codemirror.net/mode/xml/xml.js"></script>
+        <script src="http://codemirror.net/mode/javascript/javascript.js"></script>
+        <script>
+         u('#intro').nodes[0].value = _mode[name].intro;
+         u('#intro').on('input', e => {
+             _mode[name].intro = u('#intro').nodes[0].value;
+             saveMode();
+         });
+         
+         u('#mode-name-change').on('click', e => {
+             const newname = u('#mode-name').nodes[0].value;
+             renameMode(name, newname);
+             window.location.href = 'edit_mode.html?name='+newname;
+         });
+         let ces = {
+             mv: CodeMirror.fromTextArea(document.getElementById("mv"), {mode: 'xml'}),
+             custom_js: CodeMirror.fromTextArea(document.getElementById("custom_js"), {mode: 'javascript'}),
+             av: CodeMirror.fromTextArea(document.getElementById("av"), {mode: 'xml'}),
+             kbd_js: CodeMirror.fromTextArea(document.getElementById("kbd_js"), {mode: 'javascript'}),
+             //             CodeMirror.fromTextArea(document.getElementById("ce4"), {mode: 'javascript'}),
+         };
+
+         ces.mv.setValue(_mode[name].mv);
+         ces.av.setValue(_mode[name].av);
+         ces.custom_js.setValue(_mode[name].custom_js);
+         ces.kbd_js.setValue(_mode[name].kbd_js);
+         //         ces[3].setValue(_mode[name].answer_view_js);
+
+         for (let ce in ces) {
+             ces[ce].on('blur', (cm, e) => {
+                 _mode[name][cm.getTextArea().id] = cm.getValue();
+                 saveMode();
+             });
+         }
+
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,62 @@
+<!Doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Memorize</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+        <link href="style.css" rel="stylesheet"/>
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    </head>
+    <body>
+        <section class="section">
+            <div class="container">
+                <a href="dashboard.html" class="is-white"><p class="title is-3">&lt;&lt;</p></a>
+                <h1 class="title">
+                    <i class="fas fa-wrench"></i> Settings
+                </h1>
+                <h1 class="subtitle is-6">
+                    様々な設定が出来ます
+                </h1>
+
+                <br>
+
+                <h1 class="title is-5"># 使用するデータベース</h1>
+                <div class="select is-multiple">
+                    <select multiple id="db-list">
+                    </select>
+                </div>
+
+                
+            </div>
+        </section>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/umbrella/3.1.0/umbrella.min.js"></script>
+        <script src="lib.js"></script>
+        <script>
+         function htmlspecialchars(str){
+             return (str + '').replace(/&/g,'&amp;')
+                              .replace(/"/g,'&quot;')
+                              .replace(/'/g,'&#039;')
+                              .replace(/</g,'&lt;')
+                              .replace(/>/g,'&gt;'); 
+         }
+
+         for (let name in _database) {
+             name = htmlspecialchars(name);
+             u('#db-list').append(`                    
+                        <option>${name}</option>
+             `);
+         }
+
+         u('#db-list').on('change', e => {
+             let tmp = [];
+             for (let op of e.target.selectedOptions)
+                 if (op.tagName == "OPTION")
+                     tmp.push(op.innerText);
+                 configure('using_databases', tmp);
+         });
+
+        </script>
+    </body>
+</html>

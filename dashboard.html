@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Memorize</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+        <link href="style.css" rel="stylesheet"/>
+        <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+        <style>
+         .grow {
+             fill: gray;
+             -webkit-transition:fill .5s;
+             -o-transition:fill .5s;
+             transition:fill .5s
+         }
+         .grow-off {
+             fill: #363636;
+             -webkit-transition:fill .5s;
+             -o-transition:fill .5s;
+             transition:fill .5s;
+         }
+
+        </style>
+    </head>
+    <body>
+        <nav class="navbar" role="navigation" aria-label="main navigation">
+            <div class="level-item navbar-brand">
+                <a id="homebutton" class="navbar-item" href="">
+                    <svg id="cgp-logo" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 512 512">
+                        <polygon id="left" points="256 0 40 387 256 512" stroke="#363636" stroke-width="15" fill="#363636" class="grow-off"></polygon>
+                        <polygon id="right" points="256 0 472 387 256 512" stroke="#363636" stroke-width="15" fill="none"></polygon>
+                    </svg>
+                    <h1 style="display:inline" class="title is-3">Memorize</h1>
+                </a>
+
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="memnav">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <div id="memnav" class="navbar-menu">
+                <p class="navbar-item ">
+                    <a href="settings.html" class="link title subtitle is-5"><i class="fas fa-wrench"></i> Settings</a>
+                </p>
+                <p class="navbar-item ">
+                    <a href="database.html" class="link title subtitle is-5"><i class="fas fa-database"></i> Database</a>
+                </p>
+                <p class="navbar-item ">
+                    <a href="modes.html" class="link title subtitle is-5"><i class="fas fa-atom"></i> Modes</a>
+                </p>
+                
+            </div>
+        </nav>
+
+        <section class="section">
+            <div class="container">
+                <div class="columns">
+                </div>
+            </div>
+        </section>
+
+        <script src="/grow-icon.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/umbrella/3.1.0/umbrella.min.js"></script>
+        <script src="lib.js"></script>
+        <script>
+         let tmp = "";
+         let counter = 0;
+         for (let name in _mode) {
+             tmp += `
+                    <div class="column">
+                        <div class="box">
+                            <h1 class="title is-3">${name}</h1>
+<p>${_mode[name].intro}</p>
+                            <a href="play.html?mode=${encodeURIComponent(name)}" class="button is-light">Go -&gt;</a>
+                        </div>
+                    </div>
+             `;
+             
+             counter++;
+             if (counter % 2 == 0) {
+                 tmp += '</div><div class="columns">';
+             }
+         }
+         tmp += '</div>';
+         u('.columns').append(tmp);
+
+        </script>
+        <script>
+         document.addEventListener('DOMContentLoaded', () => {
+
+             // Get all "navbar-burger" elements
+             const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+             // Check if there are any navbar burgers
+             if ($navbarBurgers.length > 0) {
+
+                 // Add a click event on each of them
+                 $navbarBurgers.forEach( el => {
+                     el.addEventListener('click', () => {
+
+                         // Get the target from the "data-target" attribute
+                         const target = el.dataset.target;
+                         const $target = document.getElementById(target);
+
+                         // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                         el.classList.toggle('is-active');
+                         $target.classList.toggle('is-active');
+
+                     });
+                 });
+             }
+
+         });
+        </script>
+    </body>
+</html>
